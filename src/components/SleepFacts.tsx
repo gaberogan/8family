@@ -72,6 +72,7 @@ function HeartRate({session}: {session: SleepSession}) {
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgHeartRate = Math.round(heartRateSum / heartRateData.length);
+  const minHeartRate = Math.min(...heartRateData.map(([_, value]) => value));
 
   function getColor(value: number) {
     let color = RED;
@@ -82,7 +83,10 @@ function HeartRate({session}: {session: SleepSession}) {
   }
 
   const barData = fillHolesInHourlyTimeseries(heartRateData).map(
-    ([_, value]) => ({value, color: getColor(value)}),
+    ([_, value]) => ({
+      value: Math.max(value - (minHeartRate - 1), 0),
+      color: getColor(value),
+    }),
   );
 
   return (
@@ -102,6 +106,7 @@ function BreathingRate({session}: {session: SleepSession}) {
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgBreathRate = Math.round(breathRateSum / breathRateData.length);
+  const minBreathRate = Math.min(...breathRateData.map(([_, value]) => value));
 
   function getColor(value: number) {
     let color = RED;
@@ -112,7 +117,10 @@ function BreathingRate({session}: {session: SleepSession}) {
   }
 
   const barData = fillHolesInHourlyTimeseries(breathRateData).map(
-    ([_, value]) => ({value, color: getColor(value)}),
+    ([_, value]) => ({
+      value: Math.max(value - (minBreathRate - 1), 0),
+      color: getColor(value),
+    }),
   );
 
   return (
@@ -132,6 +140,7 @@ function RoomTemp({session}: {session: SleepSession}) {
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgRoomTemp = Math.round(roomTempSum / roomTempData.length);
+  const minRoomTemp = Math.min(...roomTempData.map(([_, value]) => value));
 
   function getColor(value: number) {
     let color = RED;
@@ -142,7 +151,10 @@ function RoomTemp({session}: {session: SleepSession}) {
   }
 
   const barData = fillHolesInHourlyTimeseries(roomTempData).map(
-    ([_, value]) => ({value, color: getColor(value)}),
+    ([_, value]) => ({
+      value: Math.max(value - (minRoomTemp - 1), 0),
+      color: getColor(value),
+    }),
   );
 
   return (
@@ -162,6 +174,7 @@ function BedTemp({session}: {session: SleepSession}) {
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgBedTemp = Math.round(bedTempSum / bedTempData.length);
+  const minBedTemp = Math.min(...bedTempData.map(([_, value]) => value));
 
   function getColor(value: number) {
     let color = RED;
@@ -172,7 +185,10 @@ function BedTemp({session}: {session: SleepSession}) {
   }
 
   const barData = fillHolesInHourlyTimeseries(bedTempData).map(
-    ([_, value]) => ({value, color: getColor(value)}),
+    ([_, value]) => ({
+      value: Math.max(value - (minBedTemp - 1), 0),
+      color: getColor(value),
+    }),
   );
 
   return (
