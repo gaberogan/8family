@@ -40,18 +40,6 @@ export const fetchSleepSessions = async () => {
   usersState.set(newUsers);
 };
 
-/**
- * e.g. sleepStageToBarData('awake') => {value: 3, color: 'yellow'}
- */
-const sleepStageToBarData = (stage: SleepStage): BarData => {
-  return {
-    out: {value: 0, color: 'black'} as BarData,
-    awake: {value: 3, color: YELLOW},
-    light: {value: 2, color: BLUE},
-    deep: {value: 1, color: PURPLE},
-  }[stage];
-};
-
 type SleepSessionWithTimestamps = (SleepSession['stages'][0] & {
   timestamp: number;
 })[];
@@ -112,10 +100,17 @@ export const getSleepStagesChartData = (session: SleepSession, bars = 30) => {
 
   const barData = new Array(bars).fill(0).map((__, index) => {
     const time = startTime + timeInterval * index;
+
     const stage = stages.find(
       x => time >= x.timestamp && time <= x.timestamp + x.duration,
     )?.stage;
-    return sleepStageToBarData(stage!);
+
+    return {
+      out: {value: 0, color: 'black'} as BarData,
+      awake: {value: 3, color: YELLOW},
+      light: {value: 2, color: BLUE},
+      deep: {value: 1, color: PURPLE},
+    }[stage!];
   });
 
   return {
