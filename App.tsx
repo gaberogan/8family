@@ -29,7 +29,7 @@ const headerOptions = {
     />
   ),
   headerShadowVisible: false,
-  animation: 'none' as const,
+  // animation: 'none' as const,
 };
 
 export default function App() {
@@ -52,11 +52,17 @@ export default function App() {
           component={HomeScreen}
           options={headerOptions}
         />
-        <Stack.Screen
-          name="SleepDetail"
-          component={SleepDetailScreen}
-          options={headerOptions}
-        />
+        <Stack.Group screenOptions={{presentation: 'modal'}}>
+          <Stack.Screen
+            name="SleepDetail"
+            component={SleepDetailScreen}
+            options={{
+              ...headerOptions,
+              headerLeft: undefined,
+              headerRight: undefined,
+            }}
+          />
+        </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
   );
