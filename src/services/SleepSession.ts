@@ -29,6 +29,9 @@ export interface SleepSessions {
   intervals: SleepSession[];
 }
 
+/**
+ * Fetch sleep sessions for each user
+ */
 export const fetchSleepSessions = async () => {
   const newUsers: User[] = await Promise.all(
     usersState.get().map(async user => ({

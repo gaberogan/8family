@@ -8,6 +8,9 @@ import {
 
 export type TextProps = NativeTextProps & {light?: boolean};
 
+/**
+ * A better React Native text component compatible with dark theme
+ */
 export default function Text(props: TextProps) {
   const scheme = useColorScheme();
   const style = StyleSheet.flatten([

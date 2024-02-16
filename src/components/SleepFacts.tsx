@@ -10,6 +10,9 @@ import {
 } from '../services/SleepSession';
 import {GREEN, ORANGE, RED, YELLOW} from '../services/Color';
 
+/**
+ * List of 5 sleep facts each with a nightly average and a bar chart showing all nightly data
+ */
 export default function SleepFacts({session}: {session: SleepSession}) {
   return (
     <View style={styles.container}>

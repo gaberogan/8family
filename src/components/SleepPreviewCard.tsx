@@ -5,6 +5,9 @@ import {useNavigation} from '@react-navigation/native';
 import SleepStagesChart from './SleepStagesChart';
 import {User} from '../services/User';
 
+/**
+ * A card showing sleep stages data and a link to sleep detail
+ */
 export default function SleepPreviewCard({user}: {user: User}) {
   const navigation = useNavigation<any>();
 

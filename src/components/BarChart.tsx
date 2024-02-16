@@ -14,6 +14,9 @@ type BarChartProps = {
   radius?: number;
 };
 
+/**
+ * Extremely basic bar chart
+ */
 export default function BarChart({
   data,
   width,

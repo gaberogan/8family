@@ -5,6 +5,9 @@ import Text from './Text';
 import {SleepSession, getSleepStagesChartData} from '../services/SleepSession';
 import {formatTime12HourClock} from '../services/Datetime';
 
+/**
+ * A bar chart showing sleep stages across the night e.g. deep, light, awake, out
+ */
 export default function SleepStagesChart({session}: {session: SleepSession}) {
   const {barData, startTime, endTime} = useMemo(
     () => getSleepStagesChartData(session),

@@ -8,6 +8,9 @@ export interface User {
   sessions?: SleepSessions;
 }
 
+/**
+ * Global users state
+ */
 export const usersState = newRidgeState<User[]>([
   {
     id: '1',

@@ -3,6 +3,9 @@ import {StyleSheet, TouchableOpacity, View, Image} from 'react-native';
 import Text from '../components/Text';
 import {formatLongDate} from '../services/Datetime';
 
+/**
+ * Date display with left and right arrows to navigate forward/back
+ */
 export default function DatePicker({
   timestamp,
   onPrev,
