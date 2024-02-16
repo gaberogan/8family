@@ -32,4 +32,4 @@ For Android, open the `android` folder in Android Studio and run the app.
 
 ### Preview
 
-<img src="https://github.com/gaberogan/eightsleepfamily/assets/58148287/dffbd2c0-52b2-47be-a10b-a7bc40236791" width="300"/> <img src="https://github.com/gaberogan/eightsleepfamily/assets/58148287/10f77399-972c-41a5-86f7-c780a4251e51" width="300"/>
+<img src="https://github.com/gaberogan/eightsleepfamily/assets/58148287/dffbd2c0-52b2-47be-a10b-a7bc40236791" width="300"/> <img src="https://github.com/gaberogan/eightsleepfamily/assets/58148287/c17454ef-9af4-4296-8be1-5cd33ee3aa57" width="300"/>
