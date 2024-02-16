@@ -1,5 +1,5 @@
-import React from 'react';
-import {DimensionValue, View} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {DimensionValue, LayoutChangeEvent, View} from 'react-native';
 import {Rect, Svg} from 'react-native-svg';
 
 export type BarData = {
@@ -27,16 +27,16 @@ export default function BarChart({
   const chartWidth = data.length * (barWidth + margin) - margin;
 
   // Calculate distortion to fix border radius
-  // const chartAspectRatio = chartHeight / chartWidth;
-  // const [distortion, setDistortion] = useState(NaN);
-  // const onLayout = useCallback((event: LayoutChangeEvent) => {
-  //   const layout = event.nativeEvent.layout;
-  //   const outerAspectRatio = layout.height / layout.width;
-  //   setDistortion(outerAspectRatio / chartAspectRatio);
-  // }, []);
+  const chartAspectRatio = chartHeight / chartWidth;
+  const [distortion, setDistortion] = useState(NaN);
+  const onLayout = useCallback((event: LayoutChangeEvent) => {
+    const layout = event.nativeEvent.layout;
+    const outerAspectRatio = layout.height / layout.width;
+    setDistortion(outerAspectRatio / chartAspectRatio);
+  }, []);
 
   return (
-    <View style={{width, height}}>
+    <View style={{width, height}} onLayout={onLayout}>
       <Svg
         preserveAspectRatio="none"
         viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
@@ -50,7 +50,7 @@ export default function BarChart({
               width={barWidth}
               height={barHeight}
               fill={color}
-              rx={radius}
+              rx={radius * distortion}
               ry={radius}
             />
           );

@@ -2,7 +2,13 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import Text from './Text';
 import BarChart, {BarData} from './BarChart';
-import {SleepSession} from '../services/SleepSession';
+import {
+  SleepSession,
+  getSleepSessionEndTime,
+  getSleepSessionStartTime,
+  getSleepStagesWithTimestamps,
+} from '../services/SleepSession';
+import {GREEN, ORANGE, RED, YELLOW} from '../services/Color';
 
 export default function SleepFacts({session}: {session: SleepSession}) {
   return (
@@ -17,14 +23,37 @@ export default function SleepFacts({session}: {session: SleepSession}) {
 }
 
 function TossesAndTurns({session}: {session: SleepSession}) {
-  const totalTNT = session.timeseries.tnt
+  // Get total TNT data for the night
+  const tntData = session.timeseries.tnt;
+  const totalTNT = tntData
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
 
-  let color = 'red';
-  totalTNT < 20 && (color = 'orange');
-  totalTNT < 10 && (color = 'yellow');
-  totalTNT < 5 && (color = 'lime');
+  let color = RED;
+  totalTNT < 20 && (color = ORANGE);
+  totalTNT < 10 && (color = YELLOW);
+  totalTNT < 5 && (color = GREEN);
+
+  // Get TNT data by hour, currently it's a list of times
+  const endTime = getSleepSessionEndTime(getSleepStagesWithTimestamps(session));
+  const startTime = getSleepSessionStartTime(session);
+  const oneHour = 3600 * 1000;
+  const numDataPoints = Math.floor((endTime - startTime) / oneHour);
+
+  const tntByHour = new Array(numDataPoints).fill(0);
+  tntData.forEach(([time, value]) => {
+    const timeMs = new Date(time).getTime();
+    const hoursSinceNightStart = Math.floor((timeMs - startTime) / oneHour);
+    tntByHour[hoursSinceNightStart] += value;
+  });
+
+  const barData = tntByHour.map(value => {
+    let unitColor = RED;
+    value < 3 && (unitColor = ORANGE);
+    value < 2 && (unitColor = YELLOW);
+    value < 1 && (unitColor = GREEN);
+    return {value, color: unitColor};
+  });
 
   return (
     <Row
@@ -32,149 +61,127 @@ function TossesAndTurns({session}: {session: SleepSession}) {
       value={totalTNT}
       unit="x"
       color={color}
-      barData={[
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-      ]}
+      barData={barData}
     />
   );
 }
 
 function HeartRate({session}: {session: SleepSession}) {
-  const heartRateData = session.timeseries.heartRate;
+  let heartRateData = session.timeseries.heartRate;
   const heartRateSum = heartRateData
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgHeartRate = Math.round(heartRateSum / heartRateData.length);
 
-  let color = 'red';
-  avgHeartRate < 80 && (color = 'orange');
-  avgHeartRate < 75 && (color = 'yellow');
-  avgHeartRate < 70 && (color = 'lime');
+  function getColor(value: number) {
+    let color = RED;
+    value < 80 && (color = ORANGE);
+    value < 75 && (color = YELLOW);
+    value < 70 && (color = GREEN);
+    return color;
+  }
+
+  const barData = fillHolesInHourlyTimeseries(heartRateData).map(
+    ([_, value]) => ({value, color: getColor(value)}),
+  );
 
   return (
     <Row
       title="Heart Rate"
       value={avgHeartRate}
       unit="BPM"
-      color={color}
-      barData={[
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-      ]}
+      color={getColor(avgHeartRate)}
+      barData={barData}
     />
   );
 }
 
 function BreathingRate({session}: {session: SleepSession}) {
-  const breathRateData = session.timeseries.respiratoryRate;
+  let breathRateData = session.timeseries.respiratoryRate;
   const breathRateSum = breathRateData
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgBreathRate = Math.round(breathRateSum / breathRateData.length);
 
-  let color = 'red';
-  avgBreathRate < 30 && (color = 'orange');
-  avgBreathRate < 25 && (color = 'yellow');
-  avgBreathRate < 20 && (color = 'lime');
+  function getColor(value: number) {
+    let color = RED;
+    value < 30 && (color = ORANGE);
+    value < 25 && (color = YELLOW);
+    value < 20 && (color = GREEN);
+    return color;
+  }
+
+  const barData = fillHolesInHourlyTimeseries(breathRateData).map(
+    ([_, value]) => ({value, color: getColor(value)}),
+  );
 
   return (
     <Row
       title="Breathing Rate"
       value={avgBreathRate}
       unit="BPM"
-      color={color}
-      barData={[
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-      ]}
+      color={getColor(avgBreathRate)}
+      barData={barData}
     />
   );
 }
 
 function RoomTemp({session}: {session: SleepSession}) {
-  const roomTempData = session.timeseries.tempRoomC;
+  let roomTempData = session.timeseries.tempRoomC;
   const roomTempSum = roomTempData
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgRoomTemp = Math.round(roomTempSum / roomTempData.length);
 
-  let color = 'red';
-  avgRoomTemp < 28 && (color = 'orange');
-  avgRoomTemp < 24 && (color = 'yellow');
-  avgRoomTemp < 20 && (color = 'lime');
+  function getColor(value: number) {
+    let color = RED;
+    value < 28 && (color = ORANGE);
+    value < 24 && (color = YELLOW);
+    value < 20 && (color = GREEN);
+    return color;
+  }
+
+  const barData = fillHolesInHourlyTimeseries(roomTempData).map(
+    ([_, value]) => ({value, color: getColor(value)}),
+  );
 
   return (
     <Row
       title="Room Temp"
       value={avgRoomTemp}
       unit="°C"
-      color={color}
-      barData={[
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-      ]}
+      color={getColor(avgRoomTemp)}
+      barData={barData}
     />
   );
 }
 
 function BedTemp({session}: {session: SleepSession}) {
-  const bedTempData = session.timeseries.tempBedC;
+  let bedTempData = session.timeseries.tempBedC;
   const bedTempSum = bedTempData
     .map(x => x[1])
     .reduce((acc, current) => acc + current, 0);
   const avgBedTemp = Math.round(bedTempSum / bedTempData.length);
 
-  let color = 'red';
-  avgBedTemp < 38 && (color = 'orange');
-  avgBedTemp < 36 && (color = 'yellow');
-  avgBedTemp < 34 && (color = 'lime');
+  function getColor(value: number) {
+    let color = RED;
+    value < 38 && (color = ORANGE);
+    value < 36 && (color = YELLOW);
+    value < 34 && (color = GREEN);
+    return color;
+  }
+
+  const barData = fillHolesInHourlyTimeseries(bedTempData).map(
+    ([_, value]) => ({value, color: getColor(value)}),
+  );
 
   return (
     <Row
       title="Bed Temp"
       value={avgBedTemp}
       unit="°C"
-      color={color}
-      barData={[
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-        {value: 2, color: 'red'},
-      ]}
+      color={getColor(avgBedTemp)}
+      barData={barData}
     />
   );
 }
@@ -202,6 +209,25 @@ function Row({title, value, unit, color, barData}: RowProps) {
       </View>
     </View>
   );
+}
+
+/**
+ * Some time series have holes i.e. 12pm, 1pm, 3pm, this fills them with 0's
+ */
+function fillHolesInHourlyTimeseries(data: [string, number][]) {
+  const startTime = new Date(data[0][0]).getTime();
+  const endTime = new Date(data.slice(-1)[0][0]).getTime();
+  const oneHour = 3600 * 1000;
+  const numDataPoints = (endTime - startTime) / oneHour;
+
+  const filledData = new Array(numDataPoints).fill(0).map((_, index) => {
+    const time = startTime + oneHour * index;
+    const isoTime = new Date(time).toISOString();
+    const dataPoint = data.find(([x]) => x === isoTime);
+    return dataPoint || [isoTime, 0];
+  }) as [string, number][];
+
+  return filledData;
 }
 
 const styles = StyleSheet.create({

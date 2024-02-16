@@ -26,6 +26,7 @@ export default function DatePicker({
             height: 24,
             resizeMode: 'contain',
             transform: [{rotate: '180deg'}],
+            opacity: canGoPrev ? 1 : 0.4,
           }}
         />
       </TouchableOpacity>
@@ -37,6 +38,7 @@ export default function DatePicker({
             width: 24,
             height: 24,
             resizeMode: 'contain',
+            opacity: canGoNext ? 1 : 0.4,
           }}
         />
       </TouchableOpacity>

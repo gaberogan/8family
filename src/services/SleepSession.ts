@@ -1,6 +1,7 @@
 import {fetchJSON} from './Fetch';
 import {BarData} from '../components/BarChart';
 import {User, usersState} from './User';
+import {BLUE, PURPLE, YELLOW} from './Color';
 
 export type SleepStage = 'awake' | 'out' | 'light' | 'deep';
 
@@ -45,9 +46,9 @@ export const fetchSleepSessions = async () => {
 const sleepStageToBarData = (stage: SleepStage): BarData => {
   return {
     out: {value: 0, color: 'black'} as BarData,
-    awake: {value: 3, color: '#FFF734'},
-    light: {value: 2, color: '#49DEFF'},
-    deep: {value: 1, color: '#8369EE'},
+    awake: {value: 3, color: YELLOW},
+    light: {value: 2, color: BLUE},
+    deep: {value: 1, color: PURPLE},
   }[stage];
 };
 
@@ -58,7 +59,7 @@ type SleepSessionWithTimestamps = (SleepSession['stages'][0] & {
 /**
  * e.g. returns [{ stage: 'awake', duration: 3600000, timestamp: 1708107579195 }, ...]
  */
-const getSleepStagesWithTimestamps = (session: SleepSession) => {
+export const getSleepStagesWithTimestamps = (session: SleepSession) => {
   const startTime = getSleepSessionStartTime(session);
 
   // Sleep stages with { timestamp }
