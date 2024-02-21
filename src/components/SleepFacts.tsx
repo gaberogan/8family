@@ -69,7 +69,10 @@ function TossesAndTurns({session}: {session: SleepSession}) {
   );
 }
 
-function HeartRate({session}: {session: SleepSession}) {
+/**
+ * Get data for heart rate component, easier to unit test separately
+ */
+export function getHeartRateData(session: SleepSession) {
   let heartRateData = session.timeseries.heartRate;
   const heartRateSum = heartRateData
     .map(x => x[1])
@@ -92,6 +95,11 @@ function HeartRate({session}: {session: SleepSession}) {
     }),
   );
 
+  return {avgHeartRate, barData, getColor};
+}
+
+function HeartRate({session}: {session: SleepSession}) {
+  const {avgHeartRate, barData, getColor} = getHeartRateData(session);
   return (
     <Row
       title="Heart Rate"
@@ -233,11 +241,11 @@ function Row({title, value, unit, color, barData}: RowProps) {
 /**
  * Some time series have holes i.e. 12pm, 1pm, 3pm, this fills them with 0's
  */
-function fillHolesInHourlyTimeseries(data: [string, number][]) {
+export function fillHolesInHourlyTimeseries(data: [string, number][]) {
   const startTime = new Date(data[0][0]).getTime();
   const endTime = new Date(data.slice(-1)[0][0]).getTime();
   const oneHour = 3600 * 1000;
-  const numDataPoints = (endTime - startTime) / oneHour;
+  const numDataPoints = 1 + (endTime - startTime) / oneHour;
 
   const filledData = new Array(numDataPoints).fill(0).map((_, index) => {
     const time = startTime + oneHour * index;
